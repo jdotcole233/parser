@@ -1,87 +1,100 @@
-import ProgScanner.Tokens;
 
 class Parser {
 
     ProgScanner progScanner;
-    Tokens tokens;
+    ProgScanner.Tokens tokens;
 
     public Parser(String filename) throws Exception {
         progScanner = new ProgScanner(filename);
     }
 
 
-    public void parse(){
+    public void parse() throws Exception{
         progScanner.scan_program_file();
         program();
     }
 
-    public void program() {
+    public void program() throws Exception {
         stmt_sequence();
     }
 
-    public void stmt_sequence() {
+    public void stmt_sequence() throws Exception {
+         statement();
          tokens = progScanner.scan_program_file();
-          
-         while (tokens.equals(tokens.SEMI)){
-                stmt_sequence();
-
+         while (tokens.equals(ProgScanner.Tokens.SEMI)){
+                statement();
          }
-        
     }
 
-    public tokens statement() {
+    public void statement()throws Exception {
         tokens = progScanner.scan_program_file();
-        if (tokens.equals("if"))
-         
-        return true;
-    }
-
-    public void if_stmt() {
-        tokens = progScanner.scan_program_file();
-        if (tokens.equals("if")) {
-            exp();
-            if (tokens.equals("then")) {
-                stmt_sequence();
-                if (tokens.equals("else")) {
-                    stmt_sequence();
-                }
-            }
+        if (tokens.equals(ProgScanner.Tokens.IF)){
+            if_stmt();
+        } else if (tokens.equals(ProgScanner.Tokens.REPEAT)){
+            repeat_stmt();
+        } else if (tokens.equals(ProgScanner.Tokens.IDENTIFIER)){
+            assign_stmt();
+        } else if (tokens.equals(ProgScanner.Tokens.WRITE)){
+            write_stmt();
+        } else if (tokens.equals(ProgScanner.Tokens.READ)){
+            read_stmt();
+        } else {
+            System.out.println("Invalid statement found!!!");
         }
-
     }
 
-    public void repeat_stmt() {
-        tokens = progScanner.scan_program_file();
-        if (tokens.equals("repeat")){
-            stmt_sequence();
-            if (tokens.equals("until")){
+    public void if_stmt()throws Exception {
+            exp();
+            tokens = progScanner.scan_program_file();
+            if (tokens.equals(ProgScanner.Tokens.THEN)) {
+                stmt_sequence();
+                tokens = progScanner.scan_program_file();
+                if (tokens.equals(ProgScanner.Tokens.ELSE)) {
+                    stmt_sequence();
+                } else{
+                    tokens = progScanner.scan_program_file();
+                    if (tokens.equals(ProgScanner.Tokens.END)){
+                        return;
+                    }
+                }
+            } 
+    }
+
+    public void repeat_stmt()throws Exception {
+             stmt_sequence();
+             tokens = progScanner.scan_program_file();
+
+            if (tokens.equals(ProgScanner.Tokens.UNTIL)){
                 exp();
             }
-        }
     }
 
-    public void assign_stmt() {
+    public void assign_stmt()throws Exception {
         tokens = progScanner.scan_program_file();
-        if (tokens.equals("IDENTIFER")){
-
+        if (tokens.equals(ProgScanner.Tokens.ASSGN)){
+                exp();
         }
     }
 
-    public void read_stmt() {
+    public void read_stmt()throws Exception {
         tokens = progScanner.scan_program_file();
-        if(tokens.equals("read")){
-
+        if(tokens.equals(ProgScanner.Tokens.IDENTIFIER)){
+            return;
         }
     }
 
-    public void write_stmt() {
+    public void write_stmt()throws Exception {
+        exp();
+    }
+
+    public void exp()throws Exception {
+        simple_exp();
         tokens = progScanner.scan_program_file();
-        if (token.equals("write")){
-            exp();
+        if (tokens.equals(ProgScanner.Tokens.LESSOP) || tokens.equals(ProgScanner.Tokens.EQOP)){
+            term();
+        } else{
+            return;
         }
-    }
-
-    public void exp() {
 
     }
 
@@ -89,56 +102,57 @@ class Parser {
 
     }
 
-    public void simple_exp() {
-
-    }
-
-    public void addop() {
+    public void simple_exp()throws Exception {
+        term();
         tokens = progScanner.scan_program_file();
-
-        if (tokens.equals('+') || tokens.equals('-')){
-
+        if (tokens.equals(ProgScanner.Tokens.PLUSOP) || tokens.equals(ProgScanner.Tokens.SUBOP)) {
+            term();
+        }else{
+            return;
         }
     }
 
-    public void term() {        
+    public void addop()throws Exception {
+        tokens = progScanner.scan_program_file();
+    }
+
+    public void term()throws Exception {        
         factor();
         tokens = progScanner.scan_program_file();
-        mulop();
-
-    }
-
-    public void mulop() {
-        tokens = progScanner.scan_program_file();
-        if (tokens.equals('*') || tokens.equals('/')){
-             tokens = progScanner.scan_program_file();
-             if (!tokens.equals('(') || tokens.equals("number") || tokens.equals("identifier")) {
-                System.out.println("Invalid token encountered");
-            }
+        if (tokens.equals(ProgScanner.Tokens.MULOP) || tokens.equals(ProgScanner.Tokens.DIVOP)) {
+            factor();
         } else{
-            System.out.println("Invalid token encoutered");
+            return;
         }
     }
 
-    public void factor() {
+    public void mulop()throws Exception {
         tokens = progScanner.scan_program_file();
-        if (tokens.equals('(')) {
+       
+    }
+
+    public void factor()throws Exception {
+        tokens = progScanner.scan_program_file();
+        if (tokens.equals(ProgScanner.Tokens.LFTPARA)){
             exp();
             tokens = progScanner.scan_program_file();
-            if (!tokens.equals(')')){
+            if (!tokens.equals(ProgScanner.Tokens.RGTPARA)){
                 System.out.println("Expecting ) ");
             }
-        } else if (tokens.equals("number")){
-                factortoken = progScanner.scan_program_file();
-        } else if (tokens.equals("identifier")){
-                factortoken = progScanner.scan_program_file();
+        } else if (tokens.equals(ProgScanner.Tokens.NUMBER)){
+                System.out.println("Number found");
+                return;
+        } else if (tokens.equals(ProgScanner.Tokens.IDENTIFIER)){
+                System.out.println("Identifier found");
+                return;
         } else {
             System.out.println("Invalid token encountered");
+            return;
         }
     }
 
-    public void match (Tokens token){
-         Token checktoken;
+    public void match (ProgScanner.Tokens token){
+         ProgScanner.Tokens checktoken = null;
         if (checktoken.equals(token)){
 
         } else {
