@@ -10,7 +10,7 @@ class Parser {
 
 
     public void parse() throws Exception{
-        progScanner.scan_program_file();
+        //progScanner.scan_program_file();
         program();
     }
 

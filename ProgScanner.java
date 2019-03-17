@@ -20,105 +20,112 @@ class ProgScanner {
     FileReader fileReader;
     ProgScanner.Tokens tokens;
     StringBuilder stringBuilder = new StringBuilder();
-
+    ArrayList<Object> objs;
+    Integer sizeofprogram = null;
+    Integer position = 0;
 
 
     public ProgScanner(String  filename) throws  Exception{
          this.filename = filename;
+         objs = new ArrayList<>();
+         loadprogram();
+         sizeofprogram = objs.size();
          fileWriter = new FileWriter("errortxt.txt");
 
     }
 
+
+    public void loadprogram() throws Exception{
+            File documentname = new File(getFilename());
+            if (!documentname.exists()) {
+                System.out.println("File not found");
+            }
+            Scanner scanner = new Scanner(documentname);
+            while (scanner.hasNext()) {
+                objs.add(scanner.next());
+            }
+            System.out.println("Done loading program");
+            Thread.sleep(200);
+            System.out.println("Scanning begining .....");
+    }
+
     public ProgScanner.Tokens scan_program_file() throws Exception  {
         ProgScanner.Tokens tokenret = null;
-       
-        File documentname  = new File(getFilename());
-
-        if (!documentname.exists()){
-            System.out.println("File not found");
-        }
-
-        Scanner scanner = new Scanner(documentname);
-        ArrayList<Object> objs = new ArrayList<>();
-        Integer ar = null;
-        while (scanner.hasNext()){
-            objs.add(scanner.next());
-        }
+        System.out.println("next..");
         System.out.println(objs.size());
-
-        for (Object string : objs){
-            
             Thread.sleep(200);
-
-            if (string instanceof String ) {
-                if (string.equals("if")) {
-                    tokenret = ProgScanner.Tokens.IF;
-                } 
-                else if (string.equals("then")) {
-                    tokenret = ProgScanner.Tokens.THEN;
-                } 
-                else if (string.equals("else")) {
-                    tokenret = ProgScanner.Tokens.ELSE;
-                } 
-                else if (string.equals("end")) {
-                    tokenret = ProgScanner.Tokens.END;
-                } 
-                else if (string.equals("repeat")) {
-                    tokenret = ProgScanner.Tokens.REPEAT;
-                } 
-                else if (string.equals("until")) {
-                    tokenret = ProgScanner.Tokens.UNTIL;
-                } 
-                else if (string.equals("write")){
-                    tokenret = ProgScanner.Tokens.WRITE;
+            if (position > sizeofprogram){
+                    return null; 
                 }
-                else if (string.equals("+")) {
-                    tokenret = ProgScanner.Tokens.PLUSOP;
-                } 
-                else if (string.equals("-")) {
-                    tokenret = ProgScanner.Tokens.SUBOP;
-                } 
-                else if (string.equals("*")) {
-                    tokenret = ProgScanner.Tokens.MULOP;
-                } 
-                else if (string.equals("/")) {
-                    tokenret = ProgScanner.Tokens.DIVOP;
-                } 
-                else if (string.equals("=")) {
-                    tokenret = ProgScanner.Tokens.EQOP;
-                } 
-                else if (string.equals("<")) {
-                    tokenret = ProgScanner.Tokens.LESSOP;
-                } 
-                else if (string.equals("(")) {
-                    tokenret = ProgScanner.Tokens.LFTPARA;
-                } 
-                else if (string.equals(")")) {
-                    tokenret = ProgScanner.Tokens.RGTPARA;
-                } 
-                else if (string.equals(";")) {
-                    tokenret = ProgScanner.Tokens.SEMI;
-                } 
-                else if (string.equals(":=")) {
-                    tokenret = ProgScanner.Tokens.ASSGN;
-                } 
-                else  if (!string.equals("if") || !string.equals("then") || !string.equals("else") || !string.equals("end") 
-                || !string.equals("repeat") || !string.equals("until") || !string.equals("write") || !string.equals("read") ){
-
-                    Pattern p = Pattern.compile("\\[0-9]+");
-                    Matcher m = p.matcher(string.toString());
-
-                    if (m.find()) {
-                        System.out.println(m.group());
-                    } else {
-                        System.out.println(string);
+                if (objs.get(position) instanceof String ) {
+                    if (objs.get(position).equals("if")) {
+                        tokenret = ProgScanner.Tokens.IF;
+                    } 
+                    else if (objs.get(position).equals("then")) {
+                        tokenret = ProgScanner.Tokens.THEN;
+                    } 
+                    else if (objs.get(position).equals("else")) {
+                        tokenret = ProgScanner.Tokens.ELSE;
+                    } 
+                    else if (objs.get(position).equals("end")) {
+                        tokenret = ProgScanner.Tokens.END;
+                    } 
+                    else if (objs.get(position).equals("repeat")) {
+                        tokenret = ProgScanner.Tokens.REPEAT;
+                    } 
+                    else if (objs.get(position).equals("until")) {
+                        tokenret = ProgScanner.Tokens.UNTIL;
+                    } 
+                    else if (objs.get(position).equals("write")){
+                        tokenret = ProgScanner.Tokens.WRITE;
                     }
+                    else if (objs.get(position).equals("+")) {
+                        tokenret = ProgScanner.Tokens.PLUSOP;
+                    } 
+                    else if (objs.get(position).equals("-")) {
+                        tokenret = ProgScanner.Tokens.SUBOP;
+                    } 
+                    else if (objs.get(position).equals("*")) {
+                        tokenret = ProgScanner.Tokens.MULOP;
+                    } 
+                    else if (objs.get(position).equals("/")) {
+                        tokenret = ProgScanner.Tokens.DIVOP;
+                    } 
+                    else if (objs.get(position).equals("=")) {
+                        tokenret = ProgScanner.Tokens.EQOP;
+                    } 
+                    else if (objs.get(position).equals("<")) {
+                        tokenret = ProgScanner.Tokens.LESSOP;
+                    } 
+                    else if (objs.get(position).equals("(")) {
+                        tokenret = ProgScanner.Tokens.LFTPARA;
+                    } 
+                    else if (objs.get(position).equals(")")) {
+                        tokenret = ProgScanner.Tokens.RGTPARA;
+                    } 
+                    else if (objs.get(position).equals(";")) {
+                        tokenret = ProgScanner.Tokens.SEMI;
+                    } 
+                    else if (objs.get(position).equals(":=")) {
+                        tokenret = ProgScanner.Tokens.ASSGN;
+                    } 
+                    else  if (!objs.get(position).equals("if") || !objs.get(position).equals("then") || !objs.get(position).equals("else") || !objs.get(position).equals("end") 
+                    || !objs.get(position).equals("repeat") || !objs.get(position).equals("until") || !objs.get(position).equals("write") || !objs.get(position).equals("read") ){
 
+                        Pattern p = Pattern.compile("\\[0-9]+");
+                        Matcher m = p.matcher(objs.get(position).toString());
+
+                        if (m.find()) {
+                            System.out.println(m.group());
+                            tokenret = ProgScanner.Tokens.NUMBER;
+                        } else {
+                            tokenret = ProgScanner.Tokens.IDENTIFIER;
+                        }
+
+                    }
                 }
-            } 
-        }
-
-
+                position++;
+          
         return tokenret;
     }
 
