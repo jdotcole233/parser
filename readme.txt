@@ -1,6 +1,2 @@
-if 353 then read number
-repeat 6998 until statement
 
-if ( 4 - 6 ) then come end
-
-yarn := 7
+if ( 7 < 3 ) then words := 5 end ;
