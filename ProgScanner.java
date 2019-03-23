@@ -74,14 +74,13 @@ class ProgScanner {
             System.out.println();
     }
 
-    public ProgScanner.Tokens scan_program_file() throws Exception  {
+    public ProgScanner.Tokens scan_program_file(String done) throws Exception  {
         ProgScanner.Tokens tokenret = null;
         // System.out.println("next..");
         // System.out.println("size of file " + objs.size());
             Thread.sleep(100);
-            if (position >= sizeofprogram){
-                    return null; 
-                }
+
+
 
                 Pattern p = Pattern.compile("\\[0-9]+");
                 Matcher m = p.matcher(objs.get(position).toString());   
@@ -200,8 +199,17 @@ class ProgScanner {
                     }
                 }
                 // System.out.println("current position of pointer " + position);
+                          
+            if (position >= sizeofprogram - 1){
+                     position = sizeofprogram - 1;
+                     if (done.equals("done")){
+                         System.exit(1);
+                     }
+                    // return tokenret; 
+                }
 
                 position++;
+  
           
         return tokenret;
     }

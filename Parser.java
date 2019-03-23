@@ -25,13 +25,14 @@ class Parser {
         boolean isvalid = statement();
         if (!isvalid){
             System.out.println("Error statement expected");
-            System.exit(1);
+            // System.exit(1);
         } 
         isstmt_seq = true;
-        System.out.println("Statment sequence called");
+        System.out.println("Statment sequence called " +  isvalid);
         // tokens = progScanner.scan_program_file();
         boolean issemicolon = false;
         if (tokens.equals(ProgScanner.Tokens.SEMI)){
+            System.out.println("In Semi colon");
             issemicolon = true;
         }
         while (issemicolon) {
@@ -45,7 +46,7 @@ class Parser {
 
     public boolean statement() throws Exception {
         boolean isvalid = true;
-        tokens = progScanner.scan_program_file();
+        tokens = progScanner.scan_program_file("");
         System.out.println("in stmt Reading => " + tokens + " position " + progScanner.position);
         if (tokens.equals(ProgScanner.Tokens.IF)) {
             if_stmt();
@@ -76,19 +77,19 @@ class Parser {
         boolean isexp = exp();
         if (isexp){
             System.out.println("in if statement");
-            tokens = progScanner.scan_program_file();
+            // tokens = progScanner.scan_program_file();
             if (tokens.equals(ProgScanner.Tokens.THEN)){
                 boolean isstmt_seq = stmt_sequence();
                 if (!isstmt_seq){
                     System.out.println("Statement sequence expected in if statment");
                 } else {
-                    tokens = progScanner.scan_program_file();
+                    tokens = progScanner.scan_program_file("");
                     if (tokens.equals(ProgScanner.Tokens.ELSE)){
                         boolean isstmt_seq2 = stmt_sequence();
                         if (!isstmt_seq2){
                             System.out.println("Statement sequence expected in if statment");
                         } else {
-                            tokens = progScanner.scan_program_file();
+                            tokens = progScanner.scan_program_file("");
                             if (tokens.equals(ProgScanner.Tokens.END)){
                                 //  tokens = progScanner.scan_program_file();
                                 System.out.println("valid if statement");
@@ -117,7 +118,8 @@ class Parser {
         if (!isstmt_seq){
             System.out.println("Statement sequence expected in repeat stmt");
         } else {
-            tokens = progScanner.scan_program_file();
+            tokens = progScanner.scan_program_file("");
+            System.out.println("value in repeat => " + tokens);
             if (tokens.equals(ProgScanner.Tokens.UNTIL)){
                 System.out.println("Until found => " + tokens);
                 boolean isexp = exp();
@@ -126,12 +128,12 @@ class Parser {
                 }
             }
         }
-        exp();
+        // exp();
     }
 
     public void assign_stmt() throws Exception{
         System.out.println("assignment called");
-        tokens = progScanner.scan_program_file();
+        tokens = progScanner.scan_program_file("");
         if (tokens.equals(ProgScanner.Tokens.ASSGN)){
             boolean isexp = exp();
             if (!isexp) {
@@ -151,12 +153,18 @@ class Parser {
 
     public void read_stmt() throws Exception{
         System.out.println("read statement called");
-        tokens = progScanner.scan_program_file();
+        String done = "";
+        // progScanner.position -= 1;
+        tokens = progScanner.scan_program_file(done);
         if (!tokens.equals(ProgScanner.Tokens.IDENTIFIER)){
             System.out.println("Expecting an identifer after read statement");
+            return;
         }
         System.out.println("Identifier found");
 
+        if (tokens.equals(ProgScanner.Tokens.SEMI)){
+                statement();
+            }
     }
 
     public boolean exp() throws Exception{
@@ -164,25 +172,28 @@ class Parser {
         boolean isexp = false;
         boolean isterm = term();
         if(isterm){
-            tokens = progScanner.scan_program_file();
-            boolean iscomp = comparison_op();
+            tokens = progScanner.scan_program_file("");
+            boolean iscomp = comparison_op(tokens);
             while (iscomp){
                 simple_exp();
                 isexp = true;
                 iscomp = false;
             }
+            // System.out.println("Comp failed");
             // isexp = true;
+
         }
         // comparison_op();
         // simple_exp();
         return isexp;
     }
 
-    public boolean comparison_op() throws Exception{
+    public boolean comparison_op(ProgScanner.Tokens token) throws Exception{
         System.out.println("Comparison operation called");
         boolean iscomp = false;
-        tokens = progScanner.scan_program_file();
-        if (tokens.equals(ProgScanner.Tokens.LESSOP) || tokens.equals(ProgScanner.Tokens.EQOP)){
+        // tokens = progScanner.scan_program_file();
+        System.out.println("Value in comp => " + token);
+        if (token.equals(ProgScanner.Tokens.LESSOP) || token.equals(ProgScanner.Tokens.EQOP)){
              iscomp = true;
         }
 
@@ -212,7 +223,7 @@ class Parser {
     public boolean addop() throws Exception{
         System.out.println("Add op called");
         boolean isaddop = false;
-        tokens = progScanner.scan_program_file();
+        tokens = progScanner.scan_program_file("");
         if (tokens.equals(ProgScanner.Tokens.PLUSOP) || tokens.equals(ProgScanner.Tokens.SUBOP)){
             isaddop = true;
         }
@@ -226,31 +237,42 @@ class Parser {
         boolean isfactor = factor();
 
         if (isfactor){
-            // tokens = progScanner.scan_program_file();
-            boolean ismulop = mulop();
+            // progScanner.position -= 1;
+            tokens = progScanner.scan_program_file("");
+            System.out.println("Value in mulop => " + tokens);
+            boolean ismulop = mulop(tokens);
             while(ismulop){
-                term();
+                factor();
                 isterm = true;
                 ismulop = false;
             }
             System.out.println("Mul op failed");
-            factor();
-            isterm = true;
+            // factor();
+            if (tokens.equals(ProgScanner.Tokens.SEMI)){
+                statement();
+            }
+
+            if (tokens.equals(ProgScanner.Tokens.LESSOP) || tokens.equals(ProgScanner.Tokens.EQOP)){
+                isterm = true;
+
+            }
+            // isterm = true;
         }
         // mulop();
         // term();
         return isterm;
     }
 
-    public boolean mulop () throws Exception{
+    public boolean mulop (ProgScanner.Tokens token) throws Exception{
         System.out.println("Mul op called");
         boolean ismulop = false;
-        tokens = progScanner.scan_program_file();
-        // System.out.println("Mul op called" + tokens);
-        if (tokens.equals(ProgScanner.Tokens.MULOP) || tokens.equals(ProgScanner.Tokens.DIVOP)){
-            System.out.println("Mul op => " + tokens);
+        // tokens = progScanner.scan_program_file();
+        System.out.println("Mul op called " + token);
+        if (token.equals(ProgScanner.Tokens.MULOP) || token.equals(ProgScanner.Tokens.DIVOP)){
+            System.out.println("Mul op => " + token);
             ismulop = true;
         }
+
 
         return ismulop;
     }
@@ -258,7 +280,9 @@ class Parser {
     public boolean factor() throws Exception{
         System.out.println("Factor called"); 
         boolean isfactor = false;  
-        tokens = progScanner.scan_program_file();
+        String done = "not";
+        tokens = progScanner.scan_program_file(done);
+        System.out.println("Token in factor => " + tokens);
         if (tokens.equals(ProgScanner.Tokens.NUMBER)){
             System.out.println("Number found");
             isfactor = true;
@@ -272,18 +296,20 @@ class Parser {
                 isfactor = false;
             }
             System.out.println("Failed in factor");
-
-            // tokens = progScanner.scan_program_file();
-            // if (tokens.equals(ProgScanner.Tokens.RGTPARA)){
-            //     System.out.println("Right paranthese");
-            //     isfactor = true;
-            // } else {
-            //     isfactor = false;
-            // }
-        } else if (tokens.equals(ProgScanner.Tokens.RGTPARA)) {
+            progScanner.position -= 1;
+            tokens = progScanner.scan_program_file("");
+            if (tokens.equals(ProgScanner.Tokens.RGTPARA)){
+                System.out.println("Right paranthese => " + tokens);
+                isfactor = true;
+            } else {
+                isfactor = false;
+            }
+        } 
+        else if (tokens.equals(ProgScanner.Tokens.RGTPARA)) {
             System.out.println("Right paranthese");
             isfactor = true;
         }
+         done = "done";
         return isfactor;     
 
         // boolean isvalid = true;
