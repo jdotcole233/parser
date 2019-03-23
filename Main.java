@@ -10,7 +10,7 @@ class Main {
         
         try{
             Parser parser = new Parser(args[0]);
-            parser.parse();
+            parser.program();
         } catch(Exception ex){
             System.out.println(ex.getMessage());
         }

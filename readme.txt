@@ -1,2 +1,1 @@
-
-if ( 7 < 3 ) then words := 5 end ;
+if ( 4 < 5 ) then write 5
