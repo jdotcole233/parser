@@ -1,1 +1,1 @@
-if ( 4 < 5 ) then write 5
+repeat read cole until ( 5 * 4 ) ;
