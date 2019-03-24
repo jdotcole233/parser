@@ -75,14 +75,18 @@ class Parser {
     public void if_stmt() throws Exception{
         System.out.println("if statement called");
         boolean isexp = exp();
-        if (isexp){
+        System.out.println("return value in if_stmt => " + isexp);
+        if (!isexp){
             System.out.println("in if statement");
-            // tokens = progScanner.scan_program_file();
+            progScanner.position -= 1;
+            tokens = progScanner.scan_program_file("");
             if (tokens.equals(ProgScanner.Tokens.THEN)){
+                System.out.println("Token encountered => " + tokens);
                 boolean isstmt_seq = stmt_sequence();
                 if (!isstmt_seq){
                     System.out.println("Statement sequence expected in if statment");
                 } else {
+                    progScanner.position -= 1;
                     tokens = progScanner.scan_program_file("");
                     if (tokens.equals(ProgScanner.Tokens.ELSE)){
                         boolean isstmt_seq2 = stmt_sequence();
@@ -91,8 +95,11 @@ class Parser {
                         } else {
                             tokens = progScanner.scan_program_file("");
                             if (tokens.equals(ProgScanner.Tokens.END)){
-                                //  tokens = progScanner.scan_program_file();
-                                System.out.println("valid if statement");
+                                 tokens = progScanner.scan_program_file("");
+                                System.out.println("valid if statement => " + tokens);
+                                 if (tokens.equals(ProgScanner.Tokens.SEMI)){
+                                        statement();
+                                    }
                             }
                         }
                     } else {
@@ -172,6 +179,7 @@ class Parser {
         boolean isexp = false;
         boolean isterm = term();
         if(isterm){
+            // progScanner.position -= 1;
             tokens = progScanner.scan_program_file("");
             boolean iscomp = comparison_op(tokens);
             while (iscomp){
@@ -206,25 +214,36 @@ class Parser {
         boolean issimple_exp = false;
         boolean isterm = term();
         if (isterm){
-            // tokens = progScanner.scan_program_file();
-            boolean isaddop = addop();
+            System.out.println("in Simple expression");
+            tokens = progScanner.scan_program_file("");
+            boolean isaddop = addop(tokens);
             while(isaddop){
                 simple_exp();
                 issimple_exp = true;
+                System.out.println("after isaddopp is called => " + tokens);
                 isaddop = false;
             }
-            issimple_exp = true;
+            // issimple_exp = true;
+            if (tokens.equals(ProgScanner.Tokens.SEMI)){
+                statement();
+            }
+
+             if (tokens.equals(ProgScanner.Tokens.PLUSOP) || tokens.equals(ProgScanner.Tokens.SUBOP)){
+                System.out.println("value after enters plus in simple_exp => " + tokens);
+                isterm = true;
+
+            }
         }
         // addop();
         // simple_exp();
         return issimple_exp;
     }
 
-    public boolean addop() throws Exception{
+    public boolean addop(ProgScanner.Tokens token) throws Exception{
         System.out.println("Add op called");
         boolean isaddop = false;
-        tokens = progScanner.scan_program_file("");
-        if (tokens.equals(ProgScanner.Tokens.PLUSOP) || tokens.equals(ProgScanner.Tokens.SUBOP)){
+        // tokens = progScanner.scan_program_file("");
+        if (token.equals(ProgScanner.Tokens.PLUSOP) || token.equals(ProgScanner.Tokens.SUBOP)){
             isaddop = true;
         }
 
@@ -252,7 +271,17 @@ class Parser {
                 statement();
             }
 
+            System.out.println("value after mul op fails => " + tokens);
+
+
             if (tokens.equals(ProgScanner.Tokens.LESSOP) || tokens.equals(ProgScanner.Tokens.EQOP)){
+                // System.out.println("value after enters less in term => " + tokens);
+                isterm = true;
+
+            }
+
+              if (tokens.equals(ProgScanner.Tokens.PLUSOP) || tokens.equals(ProgScanner.Tokens.SUBOP)){
+                System.out.println("value after enters plus in simple_exp => " + tokens);
                 isterm = true;
 
             }
@@ -305,10 +334,10 @@ class Parser {
                 isfactor = false;
             }
         } 
-        else if (tokens.equals(ProgScanner.Tokens.RGTPARA)) {
-            System.out.println("Right paranthese");
-            isfactor = true;
-        }
+        // else if (tokens.equals(ProgScanner.Tokens.RGTPARA)) {
+        //     System.out.println("Right paranthese");
+        //     isfactor = true;
+        // }
          done = "done";
         return isfactor;     
 
